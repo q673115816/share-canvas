@@ -59,13 +59,13 @@ class Client {
     }
 
     initCanvas() {
-        console.log(this.canvas)
-        this.canvas.width = this.rect.width
-        this.canvas.height = this.rect.height
-        this.canvas.addEventListener('mousedown', (e) => {
-            this.START = Math.random() + 1
-            const { clientX, clientY } = e
-            console.log(clientX, clientY)
+        // console.log(this.canvas)
+        const {width, height} = this.rect
+        this.canvas.width = width
+        this.canvas.height = height
+        this.canvas.addEventListener('mousedown', ({ clientX, clientY }) => {
+            this.START = 
+                `${crypto.getRandomValues(new Uint32Array(1)).join('')}-${width}-${height}`
             const x = clientX
             const y = clientY - this.rect.top
             this.ctx.beginPath(x, y)
@@ -106,12 +106,14 @@ class Client {
 
         this.ctx.clearRect(0, 0, width, heigt)
         for (const hash in this.paths) {
-            this.paths[hash].forEach((point, i) => {
+            
+            this.paths[hash]
+            .forEach((path, i) => {
                 if (i === 0) {
                     this.ctx.beginPath()
-                    this.ctx.moveTo(...point)
+                    this.ctx.moveTo(...this.transPosition(path, hash))
                 } else {
-                    this.ctx.lineTo(...point)
+                    this.ctx.lineTo(...this.transPosition(path, hash))
                     this.ctx.stroke()
                 }
             })
@@ -125,8 +127,8 @@ class Client {
             const start =
                 this.paths[hash][this.paths[hash].length - 1]
             this.ctx.beginPath()
-            this.ctx.moveTo(...start)
-            this.ctx.lineTo(...path)
+            this.ctx.moveTo(...this.transPosition(start, hash))
+            this.ctx.lineTo(...this.transPosition(path, hash))
             this.ctx.stroke()
         }
         this.paths[hash].push(path)
@@ -135,6 +137,14 @@ class Client {
 
     clear() {
         this.socket.emit('clear')
+    }
+
+    transPosition([x, y], hash) {
+        const [, width, height] = hash.split('-')
+        return [
+            x / width * this.rect.width,
+            y / height * this.rect.height,
+        ]
     }
 }
 

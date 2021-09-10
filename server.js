@@ -1,13 +1,23 @@
+const fs = require('fs')
 const express = require('express');
 const app = express();
 app.use(express.static('public'))
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-
 const USERCOUNT = 10
+
+const html = fs.readFileSync('./index.html')
+
+app.get('/', (req, res) => {
+    res.end(html)
+})
 
 app.get('/hello', (req, res) => {
     res.send('hello world')
+})
+
+app.get('*', (req, res) => {
+    res.json({code: 404}).status(404)
 })
 
 let paths = {}
