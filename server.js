@@ -6,6 +6,10 @@ const io = require('socket.io')(server);
 
 const USERCOUNT = 10
 
+app.get('/hello', (req, res) => {
+    res.send('hello world')
+})
+
 let paths = {}
 
 function clear() {

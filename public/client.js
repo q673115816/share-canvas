@@ -18,7 +18,7 @@ class Client {
     initSocket() {
         const username = Math.random()
         // document.querySelector('body').innerHTML += username
-        const url = 'http://localhost:2000'
+        const url = location.host
         this.socket = io(url, { autoConnect: false })
         this.socket.auth = { username }
 
