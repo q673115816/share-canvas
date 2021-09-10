@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path/posix');
 const app = express();
 app.use(express.static('public'))
 const server = require('http').createServer(app);
@@ -79,3 +78,5 @@ const PORT = 2000
 server.listen(PORT, () => {
     console.log(`server work ${PORT}`);
 });
+
+module.exports = server
