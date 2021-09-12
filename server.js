@@ -4,7 +4,12 @@ const express = require('express');
 const app = express();
 app.use(express.static(path.resolve(__dirname, 'public')))
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+    cors: {
+        methods: ['GET', 'POST'],
+        Credentials: true
+    }
+});
 const USERCOUNT = 10
 
 // const html = fs.readFileSync('./index.html')

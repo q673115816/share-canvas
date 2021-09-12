@@ -38,8 +38,9 @@ class Client {
         const url = location.host
         this.socket = io(url, {
             autoConnect: false,
-            transports: ['websocket'],
+            transports: ['polling', 'websocket'],
             secure: true,
+            withCredentials: true
         })
         this.socket.auth = { username }
 
