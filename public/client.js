@@ -3,7 +3,7 @@ class Client {
         const canvas = document.querySelector('canvas')
         this.canvas = canvas
         this.message = document.querySelector('#message')
-        this.rect = canvas.getBoundingClientRect()
+
         this.ctx = canvas.getContext('2d')
         this.START = false
         this.paths = {}
@@ -11,15 +11,36 @@ class Client {
     }
 
     init() {
+        this.initRect()
         this.initSocket()
         this.initCanvas()
+    }
+
+    initRect() {
+        const init = () => {
+            const rect = this.canvas.getBoundingClientRect()
+            this.rect = rect
+            const {width, height} = rect
+            this.canvas.width = width
+            this.canvas.height = height
+        }
+        window.addEventListener('resize', () => {
+            console.log('window resize')
+            init()
+            this.initDraw()// TODO
+        })
+        init()
     }
 
     initSocket() {
         const username = Math.random()
         // document.querySelector('body').innerHTML += username
         const url = location.host
-        this.socket = io(url, { autoConnect: false })
+        this.socket = io(url, {
+            autoConnect: false,
+            transports: ['websocket'],
+            secure: true,
+        })
         this.socket.auth = { username }
 
         this.socket.connect()
@@ -59,12 +80,10 @@ class Client {
     }
 
     initCanvas() {
-        // console.log(this.canvas)
-        const {width, height} = this.rect
-        this.canvas.width = width
-        this.canvas.height = height
+        const { width, height } = this.rect
+    
         this.canvas.addEventListener('mousedown', ({ clientX, clientY }) => {
-            this.START = 
+            this.START =
                 `${crypto.getRandomValues(new Uint32Array(1)).join('')}-${width}-${height}`
             const x = clientX
             const y = clientY - this.rect.top
@@ -106,17 +125,17 @@ class Client {
 
         this.ctx.clearRect(0, 0, width, heigt)
         for (const hash in this.paths) {
-            
+
             this.paths[hash]
-            .forEach((path, i) => {
-                if (i === 0) {
-                    this.ctx.beginPath()
-                    this.ctx.moveTo(...this.transPosition(path, hash))
-                } else {
-                    this.ctx.lineTo(...this.transPosition(path, hash))
-                    this.ctx.stroke()
-                }
-            })
+                .forEach((path, i) => {
+                    if (i === 0) {
+                        this.ctx.beginPath()
+                        this.ctx.moveTo(...this.transPosition(path, hash))
+                    } else {
+                        this.ctx.lineTo(...this.transPosition(path, hash))
+                        this.ctx.stroke()
+                    }
+                })
         }
     }
 
