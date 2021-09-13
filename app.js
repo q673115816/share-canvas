@@ -1,19 +1,14 @@
 const cluster = require("cluster");
 const http = require("http");
 const { Server } = require("socket.io");
-const redisAdapter = require("socket.io-redis");
+// const redisAdapter = require("socket.io-redis");
 const numCPUs = require("os").cpus().length;
 const { setupMaster, setupWorker } = require("@socket.io/sticky");
+const { createAdapter, setupPrimary } = require("@socket.io/cluster-adapter");
 const path = require('path')
-const serveStatic = require('serve-static')
-const finalhandler = require('finalhandler')
-const serve = serveStatic(path.resolve(__dirname, 'public'), {
-    'index': [
-        'index.html',
-        'index.htm',
-    ]
-})
-
+const express = require('express');
+const app = express();
+app.use(express.static(path.resolve(__dirname, 'public')))
 const USERCOUNT = 10
 
 let paths = {}
@@ -30,12 +25,13 @@ setInterval(() => {
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
 
-    const httpServer = http.createServer((req, res) => {
-        serve(req, res, finalhandler(req, res))
-    });
+    const httpServer = http.createServer(app);
     setupMaster(httpServer, {
         loadBalancingMethod: "least-connection", // either "random", "round-robin" or "least-connection"
     });
+
+    setupPrimary()
+
     httpServer.listen(3000);
 
     for (let i = 0; i < numCPUs; i++) {
@@ -49,14 +45,15 @@ if (cluster.isMaster) {
 } else {
     console.log(`Worker ${process.pid} started`);
 
-    const httpServer = http.createServer();
+    const httpServer = http.createServer(app);
     const io = new Server(httpServer, {
         cors: {
             methods: ['GET', 'POST'],
             Credentials: true
         }
     });
-    io.adapter(redisAdapter({ host: "localhost", port: 6379 }));// 6379
+    io.adapter(createAdapter())
+    // io.adapter(redisAdapter({ host: "localhost", port: 6379 }));// 6379
     setupWorker(io);
 
     io.on("connection", (socket) => {
