@@ -20,7 +20,7 @@ class Client {
         const init = () => {
             const rect = this.canvas.getBoundingClientRect()
             this.rect = rect
-            const {width, height} = rect
+            const { width, height } = rect
             this.canvas.width = width
             this.canvas.height = height
         }
@@ -42,7 +42,10 @@ class Client {
             secure: true,
             withCredentials: true
         })
-        this.socket.auth = { username }
+        this.socket.auth = {
+            username,
+            visitorId: window.visitorId
+        }
 
         this.socket.connect()
 
@@ -50,8 +53,9 @@ class Client {
 
         this.socket.emit('join', 'room')
 
-        this.socket.on('message', (data) => {
+        this.socket.on('message', (data, id) => {
             console.log(data);
+            this.message.innerHTML += `${id}：${data}\n`
         })
 
         this.socket.on('joined', ({ room, paths }, id) => {
@@ -64,8 +68,16 @@ class Client {
             console.log('游客加入：', data, id)
         })
 
+        this.socket.on('connectioned', (data, id) => {
+            console.log('存在未断开连接', data, id)
+        })
+
         this.socket.on('full', (data) => {
             console.log(data);
+        })
+
+        this.socket.on('disconnected', (data) => {
+            console.log('离开房间：', data);
         })
 
         this.socket.on('path', (path) => {
@@ -78,11 +90,15 @@ class Client {
             this.paths = {}
             this.ctx.clearRect(0, 0, this.rect.width, this.rect.height)
         })
+
+        window.addEventListener('beforeunload', () => {
+            this.socket.disconnect()
+        })
     }
 
     initCanvas() {
         const { width, height } = this.rect
-    
+
         this.canvas.addEventListener('mousedown', ({ clientX, clientY }) => {
             this.START =
                 `${crypto.getRandomValues(new Uint32Array(1)).join('')}-${width}-${height}`
@@ -159,6 +175,10 @@ class Client {
         this.socket.emit('clear')
     }
 
+    send(value) {
+        this.socket.emit('message', value)
+    }
+
     transPosition([x, y], hash) {
         const [, width, height] = hash.split('-')
         return [
@@ -175,3 +195,24 @@ document
     .addEventListener('click', () => {
         client.clear()
     })
+
+document
+    .querySelector('textarea')
+    .addEventListener('keydown', (e) => {
+        if(e.ctrlKey) {
+            if(e.key === 'Enter') {
+                const val = this.value.trim()
+                if (!val) return
+                client.send(val)
+                this.value = ''
+            }
+        }
+    })
+
+class _Socket {
+
+}
+
+class _canvas {
+
+}

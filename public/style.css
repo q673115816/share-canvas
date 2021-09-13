@@ -11,7 +11,7 @@
        overflow: hidden;
    }
 
-   main {
+   .flex {
        display: flex;
    }
 
@@ -19,10 +19,24 @@
        flex: 1;
    }
 
+   .flex-col {
+       flex-direction: column;
+   }
+
    pre {
        width: 200px;
        min-width: 10vw;
-       overflow: auto;
+       flex: auto;
+       overflow-y: auto;
+       overflow-x: hidden;
+       word-break: break-all;
+       white-space: pre-line;
+       line-height: 1.5;
+       padding: 0 0.5em;
+   }
+
+   textarea {
+       resize: none;
    }
 
    canvas {

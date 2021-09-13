@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,19 +8,52 @@
     <title>share-canvas</title>
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
     <header>
-        <button type="button" id="clear">清屏(每60秒清屏)</button>
+        <h1>你画我猜</h1>
     </header>
     <main>
-        <div class="flex-1">
-            <canvas></canvas>
+        <div class="flex">
+            <div class="flex-1">
+                <canvas></canvas>
+            </div>
+            <aside class="flex flex-col">
+                <pre id="message"></pre>
+                <textarea></textarea>
+            </aside>
         </div>
-        <aside>
-            <pre id="message"></pre>
-        </aside>
+        <section>
+            <h4>当前在线</h4>
+            <ul>
+                <li>asd</li>
+            </ul>
+        </section>
     </main>
+    <footer>
+        <button type="button" id="clear">清屏(每60秒清屏)</button>
+    </footer>
+    <script>
+
+        function initFingerprintJS() {
+            // Initialize an agent at application startup.
+            const fpPromise = FingerprintJS.load()
+
+            // Get the visitor identifier when you need it.
+            fpPromise
+                .then(fp => fp.get())
+                .then(result => {
+                    // This is the visitor identifier:
+                    const visitorId = result.visitorId
+                    globalThis.visitorId = visitorId
+                    console.log(visitorId)
+                })
+        }
+    </script>
+    <script src="//cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"
+        onload="initFingerprintJS()"></script>
     <script src="https://unpkg.com/socket.io-client/dist/socket.io.js"></script>
     <script src="./client.js"></script>
 </body>
+
 </html>
