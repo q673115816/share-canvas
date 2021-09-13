@@ -3,7 +3,13 @@ const express = require('express');
 const app = express();
 const socketIO = require('socket.io')
 app
-    .use(require('helmet')())
+    // .use(require('helmet').contentSecurityPolicy({
+    //     useDefaults: true,
+    //     directives: {
+    //         'script-src': ['self', 'cdn.jsdelivr.net', 'unpkg.com']
+    //     }
+    // }))
+    .use(require('helmet')({ contentSecurityPolicy: false, }))
     .use(express.static(path.join(__dirname, 'public')))
 const server = require('http').createServer(app);
 const io = socketIO(server, {
