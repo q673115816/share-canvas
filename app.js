@@ -13,14 +13,16 @@ const USERCOUNT = 10
 
 let paths = {}
 
-function clear() {
-    paths = {}
-    io.to('room').emit('clear')
+let clearTimer
+
+function createClear(io) {
+    // if(!clearTimer) return // 只注册一个进程，但进程挂了咋办
+    setInterval(() => {
+        paths = {}
+        io.to('room').emit('clear')
+    }, 60000);
 }
 
-setInterval(() => {
-    clear()
-}, 60000);
 
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
@@ -52,6 +54,7 @@ if (cluster.isMaster) {
             Credentials: true
         }
     });
+    createClear(io)
     io.adapter(createAdapter())
     // io.adapter(redisAdapter({ host: "localhost", port: 6379 }));// 6379
     setupWorker(io);

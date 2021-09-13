@@ -1,4 +1,3 @@
-const fs = require('fs')
 const path = require('path')
 const express = require('express');
 const app = express();
@@ -11,16 +10,6 @@ const io = require('socket.io')(server, {
     }
 });
 const USERCOUNT = 10
-
-// const html = fs.readFileSync('./index.html')
-// console.log(html)
-// app.get('/', (req, res) => {
-//     res.end(html)
-// })
-
-// app.get('/hello', (req, res) => {
-//     res.send('hello world')
-// })
 
 
 let paths = {}
