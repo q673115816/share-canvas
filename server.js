@@ -1,14 +1,11 @@
 const path = require('path')
 const express = require('express');
 const app = express();
-const INDEX = '/index.html'
+const socketIO = require('socket.io')
 app
     .use(express.static(path.join(__dirname, 'public')))
-    .use((req, res) => res.sendFile(INDEX, {
-        root: path.join(__dirname, 'public')
-    }))
 const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
+const io = socketIO(server, {
     cors: {
         methods: ['GET', 'POST'],
         Credentials: true
@@ -84,10 +81,8 @@ io.on('connection', (socket) => {
     })
 })
 
-const PORT = 2000
+const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
     console.log(`server work ${PORT}`);
 });
-
-module.exports = server
