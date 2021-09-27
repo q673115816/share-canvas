@@ -22,7 +22,7 @@ const USERCOUNT = 10
 
 
 let paths = {}
-let clients = new Set
+let clients = new Map
 
 function clear() {
     paths = {}
@@ -40,6 +40,7 @@ io.use((socket, next) => {
     // }
     socket.username = username
     socket.visitorId = visitorId
+    console.log(username, visitorId);
     next()
 })
 
@@ -64,8 +65,10 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         // console.log('Client disconnected')
         // socket.emit('disconnected')
-        socket.to(socket.room).emit('disconnected', socket.id)
-        clients.delete(socket)
+        socket
+            .to(socket.room)
+            .emit('disconnected', socket.id)
+        clients.delete(socket.id)
     });
     socket.on('join', async (room) => {
         socket.join(room)
@@ -77,7 +80,15 @@ io.on('connection', (socket) => {
         const roomCount = users.size
         // const users = myRoom ? Object.keys(myRoom.sockets).length : 0
         if (roomCount < USERCOUNT) {
-            socket.emit('joined', { room, paths }, socket.id)
+            clients.set(socket.id, {
+                id: socket.id,
+                visitorId: socket.visitorId
+            })
+            socket.emit('joined', {
+                room,
+                paths,
+                users: [...clients.entries()]
+            }, socket.id)
             socket.room = room
             if (roomCount > 1) {
                 socket
@@ -111,7 +122,7 @@ io.on('connection', (socket) => {
     })
 })
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 2000;
 
 server.listen(PORT, () => {
     console.log(`server work ${PORT}`);

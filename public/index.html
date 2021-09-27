@@ -23,35 +23,40 @@
                 <textarea></textarea>
             </aside>
         </div>
-        <section>
-            <h4>当前在线</h4>
-            <ul>
-                <li>asd</li>
-            </ul>
+        <section id="online">
+
         </section>
     </main>
     <footer>
         <button type="button" id="clear">清屏(每60秒清屏)</button>
     </footer>
+    <script type="html" id="template-online">
+            <h4>当前在线(<%- users.length %>)</h4>
+            <%for(let i = 0;i < users.length;i++) {%>
+            <ul>
+                <li><%- users[i].id %></li>
+            </ul>
+            <% } %>
+    </script>
     <script>
 
-        function initFingerprintJS() {
+        async function initFingerprintJS() {
             // Initialize an agent at application startup.
             const fpPromise = FingerprintJS.load()
 
             // Get the visitor identifier when you need it.
-            fpPromise
+            return await fpPromise
                 .then(fp => fp.get())
                 .then(result => {
                     // This is the visitor identifier:
                     const visitorId = result.visitorId
-                    globalThis.visitorId = visitorId
-                    console.log(visitorId)
+                    return visitorId
                 })
         }
     </script>
-    <script src="//cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"
-        onload="initFingerprintJS()"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.6/ejs.min.js"
+        integrity="sha256-mOsgtygNfXBUPc/+cc19yr+g0jieqYOgRL5xFD2sC0Y=" crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.2.0/dist/socket.io.js"></script>
     <script src="./client.js"></script>
 </body>

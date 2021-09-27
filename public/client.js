@@ -1,3 +1,11 @@
+const template_online = ejs.compile(document.querySelector('#template-online').textContent)
+
+// console.log(template_online({
+//     count: 10,
+//     users: [{id: 123}]
+// }));
+
+
 class Client {
     constructor() {
         const canvas = document.querySelector('canvas')
@@ -32,7 +40,8 @@ class Client {
         init()
     }
 
-    initSocket() {
+    async initSocket() {
+        const visitorId = await initFingerprintJS()
         const username = Math.random()
         // document.querySelector('body').innerHTML += username
         const url = location.host
@@ -42,9 +51,10 @@ class Client {
             secure: true,
             withCredentials: true
         })
+
         this.socket.auth = {
             username,
-            visitorId: window.visitorId
+            visitorId
         }
 
         this.socket.connect()
@@ -58,9 +68,14 @@ class Client {
             this.message.innerHTML += `${id}：${data}\n`
         })
 
-        this.socket.on('joined', ({ room, paths }, id) => {
-            console.log('加入房间：', { room, paths }, id);
+        this.socket.on('joined', ({ room, paths, users }, id) => {
+            console.log('加入房间：', { room, paths, users }, id);
             this.paths = paths
+            console.log(users)
+            const htmlOnline = template_online({
+                users: users.map(([, user]) => user)
+            })
+            document.querySelector('#online').innerHTML = htmlOnline
             this.initDraw()
         })
 
@@ -201,10 +216,11 @@ document
     .addEventListener('keydown', (e) => {
         if(e.ctrlKey) {
             if(e.key === 'Enter') {
-                const val = this.value.trim()
+                const val = e.target.value.trim()
+                console.log(val);
                 if (!val) return
                 client.send(val)
-                this.value = ''
+                e.target.value = ''
             }
         }
     })
@@ -215,4 +231,10 @@ class _Socket {
 
 class _canvas {
 
+}
+
+class _message {
+    constructor() {
+        this.element = document.querySelector('#message')
+    }
 }
